@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Wola Nani</title>
+    <link rel="stylesheet" href="form.css">
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.19.1/firebase-app.js";
+        import { getDatabase, ref, get, child, query, equalTo } from "https://www.gstatic.com/firebasejs/9.19.1/firebase-database.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyBJ_Eii7bKN-tzijcSSA_HeA8Uhh8OJMTo",
+            authDomain: "wolanani-53ae1.firebaseapp.com",
+            databaseURL: "https://wolanani-53ae1-default-rtdb.firebaseio.com",
+            projectId: "wolanani-53ae1",
+            storageBucket: "wolanani-53ae1.appspot.com",
+            messagingSenderId: "528468255970",
+            appId: "1:528468255970:web:f0acf65b119b0d14cf2abb",
+            measurementId: "G-36W5DPT0SZ"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const database = getDatabase(app);
+
+        const loginButton = document.getElementById("login");
+
+        loginButton.addEventListener("click", async function () {
+            const phone = document.querySelector('input[name="phone"]').value;
+            const password = document.querySelector('input[name="password"]').value;
+
+            const userRef = ref(database, `users/${phone}`);
+            const snapshot = await get(userRef);
+
+            if (snapshot.exists()) {
+                const userData = snapshot.val();
+                const hashedPassword = await hashPassword(password);
+
+                if (userData.password === hashedPassword) {
+                    alert("Login successful!");
+                    window.location.href = "donate.html";
+                } else {
+                    alert("Login failed. Check your password.");
+                }
+            } else {
+                alert("User not found. Please sign up.");
+            }
+        });
+
+        async function hashPassword(password) {
+            const encoder = new TextEncoder();
+            const data = encoder.encode(password);
+            const hashBuffer = await crypto.subtle.digest("SHA-256", data);
+            const hashArray = Array.from(new Uint8Array(hashBuffer));
+            const hashHex = hashArray.map(byte => byte.toString(16).padStart(2, "0")).join("");
+            return hashHex;
+        }
+    </script>
+</head>
+<body>
+
+    <div class="main">
+        <div class="navbar">
+            <div class="icon">
+                <h2 class="logo"><img src="icon.png" style="width: 120px;height: 120px;"></h2>
+            </div>
+
+            <div class="menu">
+                <ul>
+                    <li><a href="index.html">HOME</a></li>
+                    <li><a href="about.html">ABOUT</a></li>
+                    <li><a href="support.html">SUPPORT</a></li>
+                    <li><a href="help.html">HELP & ADVICE</a></li>
+                    <li><a href="contact.html">CONTACT</a></li>
+                    <li><a href="login.html">DONATE</a></li>
+                </ul>
+            </div>
+
+            <div class="slogan">
+                <h2>Helping People Living With HIV and Aids to Help Themselves</h2>
+            </div>
+
+        </div> 
+
+        <div class="content">
+            <div class="form">
+                <h2>Login Here</h2>
+                <input type="text" name="phone" placeholder="Enter Phone Number Here" required>
+                <input type="password" name="password" placeholder="Enter Password Here" required>
+                <button class="btnn" id="login">Login</button>
+                <p class="link">
+                    Don't have an account<br>
+                    <a href="signup.html">Sign up</a> here
+                </p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
